@@ -25,20 +25,21 @@ func selectNew(db *gorm.DB) {
 	var result []User
 
 	db.Model(User{}).
-		Where("processed = ?", false).
+		Where("processed = false").
 		Select("email", "created_at").
 		Find(&result)
 
 	db.Model(User{}).
-		Where("processed = ?", false).
-		Update("processed", "true")
+		Where("processed = false").
+		Update("processed", true)
 
 	res := make([]Response, len(result))
-	now := time.Now()
 
+	now := time.Now()
 	for i, x := range result {
 		res[i] = Response{Email: x.Email, TimeFromInsert: int(now.Sub(x.CreatedAt).Seconds())}
 	}
+
 	b, _ := json.MarshalIndent(res, "", "  ")
 	fmt.Println(string(b))
 }
@@ -50,8 +51,9 @@ func main() {
 	}
 
 	fmt.Println("started")
+
 	s := gocron.NewScheduler(time.UTC)
-	s.Cron("* * * * *").Do(selectNew, db)
+	s.Every(1).Minute().Do(selectNew, db)
 	s.StartBlocking()
 
 }

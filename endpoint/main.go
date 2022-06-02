@@ -43,6 +43,7 @@ func main() {
 	}).Methods("POST")
 
 	fmt.Println("started")
+	
 	server := http.Server{Addr: "127.0.0.1:1000", Handler: r}
 	server.ListenAndServe()
 }
